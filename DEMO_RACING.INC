@@ -18,7 +18,7 @@ SUB INIT_DEMO_RACING
  camD=0.35  'camera depth
 
  xpl=0 
- dx=0: N=1200: posi=30
+ dx=0: N=1500: posi=30
  Li=30
  H=1500
 
@@ -46,31 +46,32 @@ SUB INIT_DEMO_RACING
 
  'CREATE ROAD
  ytemp = yy(0)
+ adj=1.14: t=adj
  For i = 0 To N
   zz(i) = i*segL
   SELECT CASE i
-   CASE 20 TO 75: curve(i)=0.7*90
-   CASE 76 TO 116: curve(i)=-0.7*90
-   CASE 117 TO 148: curve(i)=0.7*90
-   CASE 149 TO 170: curve(i)=0
-   CASE 171 TO 341: yy(i)=Sin(i/11-34.2)*3000
-   CASE 400 TO 460: curve(i)=-0.9*90
-   CASE 470 TO 550: curve(i)=0.9*90
-   CASE 564 TO 599: yy(i)=Sin(i/11-45)*3000: curve(i)=-1*90
-   CASE 633 TO 737: yy(i)=Sin(i/11-45)*3000: curve(i)=1*90
-   CASE 750 TO 830: curve(i)=-1*90
-   CASE 851 TO 890: curve(i)=0.9*90
-   CASE 901 TO 950: curve(i)=-0.7*90
-   CASE >1010: curve(i)=0
+   CASE 20*t TO 75*t: curve(i)=0.7*90
+   CASE 76*t TO 116*t: curve(i)=-0.7*90
+   CASE 117*t TO 148*t: curve(i)=0.7*90
+   CASE 149*t TO 170*t: curve(i)=0
+   CASE 171*t TO 341*t: yy(i)=Sin((i/t)/11-34.2)*3000
+   CASE 400*t TO 460*t: curve(i)=-0.9*90
+   CASE 470*t TO 550*t: curve(i)=0.9*90
+   CASE 564*t TO 599*t: yy(i)=Sin((i/t)/11-45)*3000: curve(i)=-1*90
+   CASE 633*t TO 737*t: yy(i)=Sin((i/t)/11-45)*3000: curve(i)=1*90
+   CASE 750*t TO 830*t: curve(i)=-1*90
+   CASE 851*t TO 890*t: curve(i)=0.9*90
+   CASE 901*t TO 950*t: curve(i)=-0.7*90
+   CASE >1010*t: curve(i)=0
   END SELECT
-  if not(i>165 and i<195) then
-   if (i=>165 and i<=360) or (i>=565 and i<=640) then
+  if not(i>165*t and i<195*t) then
+   if (i=>165*t and i<=360*t) or (i>=565*t and i<=640*t) then
     if i mod 36 then sqArc(i)=0 else sqArc(i)=1
    else
     if i mod 16 then sqArc(i)=0 else sqArc(i)=1 
    endif
   endif
-  if i>1050 then if i mod 16 then sqArc(i)=2 else sqArc(i)=3
+  if i>1050*t then if i mod 16 then sqArc(i)=2 else sqArc(i)=3
  Next i
  yy(0)=ytemp
 
@@ -139,12 +140,9 @@ Sub spriteCar (x,y,yc,n,S,ZC)
   ENDIF
  ELSE
   'ZOOMED CAR
-  PAGE WRITE 4
-  IF ZC<-95 THEN ZC=-95
-  BLIT XX,YY,50,50,SX,SY,6,0
-  IMAGE RESIZE_FAST 50,50,SX,SY, 50,50,SX+ZC,SY+ZC/1.33,4
   PAGE WRITE 1
-  BLIT 50,50,x-SX/2-ZC/2,yc-SY/2-(ZC/1.40)/2,SX+ZC,SY+ZC/1.33,4,S
+  IF ZC<-95 THEN ZC=-95
+  IMAGE RESIZE_FAST XX,YY,SX,SY, x-SX/2-ZC/2,yc-SY/2-(ZC/1.5211)/2, SX+ZC,SY+ZC/1.5211,6,1
  ENDIF
 End Sub
 
@@ -175,7 +173,7 @@ End Sub
 
 SUB RUN_DEMO_RACING
 
- LOCAL T,XP,TR,TL,CO,TSIZE,XTXT,YTXT,GOCREDIT,CREDIT,FTXTA,FTXTB,ENDING,ZC,STOPTXT
+ LOCAL T,TT,XP,TR,TL,CO,TSIZE,XTXT,YTXT,GOCREDIT,CREDIT,FTXTA,FTXTB,ENDING,ZC,STOPTXT,CJUMP
 
  DIM A$(30) LENGTH 25
 
@@ -204,7 +202,7 @@ SUB RUN_DEMO_RACING
 
   SEC=TIMER/1000
 
-  FPS(17)
+  FPS(19)
 
   speed=1000
 
@@ -221,7 +219,7 @@ SUB RUN_DEMO_RACING
   'print@(0,0) startPos
 
   T=startPos
-  if (T>168 and T<188) then jump=3: spdY=-8
+  if (T>168*adj and T<188*adj) then cjump=3: spdY=-8
 
   'DRAW ROAD
   For nn = startPos+1 To startPos+Li
@@ -266,9 +264,26 @@ SUB RUN_DEMO_RACING
     endif
 
     'DRAW ROAD  
-    box 0,Y(nn),MM.HRES,int(Y(no)-Y(nn))+1,0,,cGrass
+    'box 0,Y(nn),MM.HRES,int(Y(no)-Y(nn))+1,0,,cGrass
+    t=int(Y(no)-Y(nn))+1
+    if Y(nn)+t>mm.vres then t=mm.vres-Y(nn)-1
+   
+    'FAKE TEXTURES
+    if t>0 and X(no)+20>0 and Y(nn)<mm.vres then
+     image resize_fast 100-(X(no)+20)/(mm.hres/100),350-(nn mod 3)*(6+Y(nn)\80),100,10+Y(nn)\10, 0,Y(nn),X(no)+20,t, 6,0
+    endif
+    if t>0 and X(nn)<mm.hres and Y(nn)<mm.vres then
+     image resize_fast 100-X(nn)/(mm.hres/100),     350-(nn mod 3)*(6+Y(nn)\80),100,10+Y(nn)\10, X(nn),Y(nn),mm.hres-X(nn),t, 6,0
+    endif
+
     drawQuad(cRumble,X(no),Y(no),W(no)*1.2,X(nn),Y(nn),W(nn)*1.2)
     drawQuad(cRoad,X(no),Y(no),W(no),X(nn),Y(nn),W(nn))
+
+    'if t>0 and X(no)+20>0 and Y(nn)<mm.vres and Y(nn)>mm.vres-150 then
+    ' image warp_v 0,300+(nn mod 10)*10,200,10, X(nn)-W(nn)/2,Y(nn),W(nn), X(no)-W(no)/2,Y(nn)+t,W(no), 6,0
+     'image resize_fast X(nn)-W(nn)/1.2,Y(nn),W(nn)*1.3,Y(nn)+t, 0,Y(nn),mm.hres/2,Y(nn)+t
+   ' endif
+
    EndIf
   Next nn 
   box 0,y(startpos+1)+1,MM.HRES,MM.VRES-y(startpos+1)+1,0,,RGB(0,0,0)
@@ -286,11 +301,28 @@ SUB RUN_DEMO_RACING
     YT=Y(nn)-size-2
     IF sqArc(nn)=1 THEN
      'ARCH
-     if TL>0 then 
-      box TL,YT,sizeX,size+1,0,,RGB(CO,CO,CO)        'LEFT
-      box TL,YT,TR-TL+1,sizeX/1.5-1,0,,RGB(CO,CO,CO) 'UPPER
-     endif
-     if TR<MAXX then box TR,YT,sizeX,size+1,0,,RGB(CO,CO,CO)  'RIGHT
+     'if TL>0 then 
+     ' box TL,YT,sizeX,size+1,0,,RGB(CO,CO,CO)        'LEFT
+     ' box TL,YT,TR-TL+1,sizeX/1.5-1,0,,RGB(CO,CO,CO) 'UPPER
+     'endif
+     'if TR<MAXX then box TR,YT,sizeX,size+1,0,,RGB(CO,CO,CO)  'RIGHT
+
+     IF YT+SIZE+1>MM.VRES THEN YT=MM.VRES-SIZE-1
+     IF YT<0 THEN YT=0
+     IF SIZE<0 THEN SIZE=0
+
+     'LEFT TREE
+     T=TL-size/6
+     TT=0
+     IF T<0 THEN TT=ABS(T): T=0
+     IF TT<100 THEN IMAGE RESIZE_FAST 540+TT,172,100-TT,228, T,YT,5+size/3,size+1,6,1
+
+     'RIGHT TREE
+     T=TR-size/6
+     TT=0
+     IF T>=mm.hres-(5+size/3+1) THEN TT=ABS(T-(mm.hres-(5+size/3+1)))
+     IF T>0 AND T<mm.hres AND TT<100 THEN IMAGE RESIZE_FAST 540+TT,172,100-TT,228, T,YT,5+size/3,size+1,6,1
+
     ELSE IF sqArc(nn)>=2 THEN
      'ENDING TUNNEL
      ENDING=1
@@ -325,7 +357,7 @@ SUB RUN_DEMO_RACING
 
   'CAR SPRITE FOLLOW ROAD CURVES
   T=INT(X(Startpos+Li))-MAXX/2
-   IF JUMP=0 THEN
+   IF CJUMP=0 THEN
    SELECT CASE T
     CASE <-95 : SprN=SprN+8: Side=5
     CASE <-40 : SprN=SprN+4: Side=5
@@ -335,7 +367,7 @@ SUB RUN_DEMO_RACING
   ELSE
    'CAR SPRITE FOLLOW JUMP
    if spdY<0 then SprN=Ycar\50 else SprN=4-Ycar\100
-   if spdY<0 then SprN=-SpdY\2 else SprN=3-Jump+SpdY\3
+   if spdY<0 then SprN=-SpdY\2 else SprN=3-cjump+SpdY\3
    if SprN>4 then SprN=4
    if SprN<1 then SprN=1
   ENDIF
@@ -344,7 +376,7 @@ SUB RUN_DEMO_RACING
   ShadY = MM.VRES-60+COS(RAD(YC-40))*10+SW
 
   'CAR Y - JUMPING?
-  if jump=0 then
+  if cjump=0 then
    Ycar = Shady: SpdY=0
   else
    Ycar = Ycar + spdY
@@ -352,18 +384,15 @@ SUB RUN_DEMO_RACING
   endif
 
   'CAR LIMIT
-  if Ycar > ShadY+3 then jump=jump-1: spdY=-spdY/2
+  if Ycar > ShadY+3 then cjump=cjump-1: spdY=-spdY/2
 
-  IF SEC>=30 THEN Ycar=Ycar-(SEC-30)*40: ShadY=0: ZC=ZC-2.8
+  IF SEC>=30 THEN Ycar=Ycar-(SEC-30)*56: ShadY=0: ZC=ZC-2.8
 
   'DRAW CAR
   SpriteCar(MM.HRES/2-T/2,ShadY,Ycar,SprN,Side,ZC)
 
   'GENERAL SWAP (USED FOR SHADOW)
   IF SW=0 THEN SW=1 ELSE SW=0
-
-  'FIX BORDERS
-  'BOX 0,0,MM.HRES,MM.VRES,1,RGB(0,0,0)
 
   'ENDING
   IF SEC>=32 THEN T=(MAXX/2)*(SEC-32): BOX MAXX/2-T,MAXY/2-T/1.77, T*2,(T*2)/1.77, 0,,RGB(0,0,0)
@@ -374,7 +403,7 @@ SUB RUN_DEMO_RACING
    XTXT=MAXX/2-((52*12)/TSIZE)/2
    SIZEX=(52*12)/TSIZE
    SIZEY=(60*2)/TSIZE
-   IF XTXT<0 THEN XTXT=XTXT=0
+   IF XTXT<0 THEN XTXT=0
    PAGE WRITE 1
    IMAGE RESIZE_FAST 0,0,52*12,60*2, XTXT,90-SIZEY/2,SIZEX,SIZEY,5,1
    TSIZE=TSIZE-0.30
@@ -391,7 +420,7 @@ SUB RUN_DEMO_RACING
    'IF FTXTA<-52*28 THEN IF CREDIT>9 THEN TSIZE=1 ELSE TSIZE=0
    IF FTXTA<-52*22 THEN 
     STOPTXT=STOPTXT+1
-    IF STOPTXT>22 THEN
+    IF STOPTXT>26*ADJ THEN
      STOPTXT=0
      PRINTK(-44,30,A$(CREDIT*2-1),4)
      PRINTK(-44,94,A$(CREDIT*2),4)
