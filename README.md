@@ -14,7 +14,6 @@ Changelog:
 Version 0.9b - 2020-12-13 -------------------------------------
 
 - This version runs only with the 5.06 firmware version or up
-place
 - Almost all demo is running smoother now
 - The text flashing part now have perspective (demonstration of the WARP_H command)
 - Space ship part is very smooth now and have a better animation
