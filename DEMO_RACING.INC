@@ -209,7 +209,7 @@ SUB RUN_DEMO_RACING
 
   speed=1000
 
-  IF MM.INFO(CPUSPEED)=400000000 THEN FPS(19) ELSE FPS(17)
+  FPS(19)
 
   posi = posi + speed
   If posi >= N*segL Then posi=posi-N*segL
