@@ -1,8 +1,11 @@
+
 '-- INITIALIZE DEMO RACING --
 
 SUB INIT_DEMO_RACING
 
  LOCAL T
+
+ 'DEBUG=1
 
  IF DEMOSEC=1 THEN
   PAGE WRITE 6:CLS
@@ -18,7 +21,7 @@ SUB INIT_DEMO_RACING
  camD=0.35  'camera depth
 
  xpl=0 
- dx=0: N=1500: posi=30
+ dx=0: N=2000: posi=30
  Li=30
  H=1500
 
@@ -46,7 +49,9 @@ SUB INIT_DEMO_RACING
 
  'CREATE ROAD
  ytemp = yy(0)
- adj=1.14: t=adj
+ adj=1.14 'FPS=19
+ 'adj=1 'FPS=17
+ t=adj
  For i = 0 To N
   zz(i) = i*segL
   SELECT CASE i
@@ -202,9 +207,9 @@ SUB RUN_DEMO_RACING
 
   SEC=TIMER/1000
 
-  FPS(19)
-
   speed=1000
+
+  IF MM.INFO(CPUSPEED)=400000000 THEN FPS(19) ELSE FPS(17)
 
   posi = posi + speed
   If posi >= N*segL Then posi=posi-N*segL
@@ -481,7 +486,7 @@ SUB RUN_DEMO_RACING
    TSIZE=7.5
    PAGE WRITE 1
   ENDIF
- 
+
   'COPY TO MAIN PAGE
   PAGE COPY 1 TO 0,I
 
